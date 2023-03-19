@@ -1,17 +1,18 @@
 import { getRoleHandler , addRoleHandler, deletRoleHandler, roleAddPermitHandler , roleRemovePermitHandler } from "../controller/role.controller"
-import { validateAll } from "../middleware/validator"
+import { roleValidator } from "../middleware/roleValidator"
+import { validateAll, validateToken } from "../middleware/validator"
 import { roleSchema } from "../utils/schema"
 
 const roleRoute = require("express").Router()
 
-roleRoute.get("/" , getRoleHandler)
+roleRoute.get("/",validateToken, roleValidator('admin') , getRoleHandler)
 
-roleRoute.post("/", validateAll(roleSchema) , addRoleHandler)
+roleRoute.post("/", validateToken , roleValidator('admin'), validateAll(roleSchema) , addRoleHandler)
 
-roleRoute.delete("/" ,  deletRoleHandler)
+roleRoute.delete("/" ,validateToken , roleValidator('admin'),  deletRoleHandler)
 
-roleRoute.patch("/add/permit" , roleAddPermitHandler)
+roleRoute.patch("/add/permit" ,validateToken , roleValidator('admin'), roleAddPermitHandler)
 
-roleRoute.patch("/remove/permit" , roleRemovePermitHandler)
+roleRoute.patch("/remove/permit" ,validateToken , roleValidator('admin'), roleRemovePermitHandler)
 
 export default roleRoute

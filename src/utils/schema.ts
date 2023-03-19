@@ -10,7 +10,9 @@ export const permitSchema = object({
 
 export const allSchemaId = object({
     query : object({
-        _id  : string().regex(/^[0-9a-fA-F]{24}$/ , "invlid id")
+        _id  : string({
+            required_error : "no data with that id"
+        }).regex(/^[0-9a-fA-F]{24}$/ , "invlid id")
     })
 })
 

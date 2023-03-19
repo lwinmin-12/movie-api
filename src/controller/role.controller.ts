@@ -37,13 +37,18 @@ export const deletRoleHandler = async (req : Request , res : Response , next : N
 
 export const roleAddPermitHandler = async (req : Request , res : Response , next : NextFunction )=>{
     try {
-        let role = await getRole(req.query )
+        let role = await getRole({_id : req.body.roleId })
         let permit = await getPermit({_id : req.body.permitId })
-        if(!role || !permit){
+        if(!role[0] || !permit[0]){
             next(new Error ("role or permit not found"))
         }
-       let result = await roleAddPermit(req.query , req.body.permitId)
+        let foundRole = role[0].permits.find((ea : any) => ea._id ==  req.body.permitId) 
+        if(foundRole){
+            return next( new Error("Permit already in exist"))
+          }
+       let result = await roleAddPermit(req.body.roleId , req.body.permitId)
        fMsg(res , "permit added " , result)
+    // console.log(result)
     }catch(e){
         next(new Error (e))
     }
@@ -51,13 +56,13 @@ export const roleAddPermitHandler = async (req : Request , res : Response , next
 
 export const roleRemovePermitHandler = async (req : Request , res : Response , next : NextFunction ) => {
     try{
-        let role = await getRole(req.query)
-        let permit = await getPermit({_id : req.body.permitId })
-        let dbpermit = role[0]['permits'].find((ea : string) =>  ea === req.body.permitId)
+        let role = await getRole({_id : req.body.roleId})
+        // let permit = await getPermit({_id : req.body.permitId })
+        let dbpermit = role[0]['permits'].find((ea : string) =>  ea == req.body.permitId)
         if(!role || !dbpermit){
             throw new Error("role or permit not found")
         }
-       let result = await roleRemovePermit(req.query , req.body.permitId)
+       let result = await roleRemovePermit(req.body.roleId  , req.body.permitId)
        fMsg(res , "permit removed " , result)
     }catch(e) {
         next(new Error (e))
