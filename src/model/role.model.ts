@@ -4,11 +4,12 @@ import { permitDocument } from './permit.model'
 
 export interface roleDocument extends mongoose.Document {
     name : string,
+    permits : permitDocument['_id']
+
 }
 
-export interface roleSecDocument extends roleDocument , mongoose.Document{
-    permits : permitDocument['_id']
-}
+// export interface roleSecDocument extends roleDocument , mongoose.Document{
+// }
 
 const roleSchema = new Schema({
     name : {type : String , required : true , unique : true},
@@ -17,3 +18,4 @@ const roleSchema = new Schema({
 
 const roleModel = mongoose.model <roleDocument> ('role' , roleSchema);
 export default roleModel
+

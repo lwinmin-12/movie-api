@@ -1,7 +1,8 @@
-import {AnyZodObject} from 'zod'
 import { NextFunction , Response , Request } from "express";
+import { checkToken } from '../utils/helper';
+import { getUser } from '../service/user.service';
 
- const validateAll =
+export const validateAll =
    (schema: any) =>
   async (req: Request, res: Response, next: NextFunction) => {
 
@@ -16,5 +17,18 @@ import { NextFunction , Response , Request } from "express";
       return next(new Error(e.errors[0].message))
     }
   };
+export const validateToken =async (req: Request, res: Response, next: NextFunction) => {
+  let token = req.headers.authorization?.split(' ')[1]
 
-  export default validateAll
+  if(!token) {
+    return next(new Error("invalid token"))
+  }
+  try{
+    let decoded =  checkToken(token)
+    let user = await getUser({_id :decoded._id})
+    req.body.user = user
+  }catch(e : any){
+    return next(new Error(e))
+  }
+  next()
+}

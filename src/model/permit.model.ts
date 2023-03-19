@@ -9,5 +9,5 @@ const permitSchema = new Schema({
     name : {type : String , required : true , unique : true}
 })
 
-const Permit = mongoose.model <permitDocument> ('permit' , permitSchema);
-export default Permit
+const PermitModel = mongoose.model <permitDocument> ('permit' , permitSchema);
+export default PermitModel

@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 import { Schema } from "mongoose";
 // import { encode , compass } from "../utils/helper";
 import { encode } from "../utils/helper";
+import { permitDocument } from "./permit.model";
+import { roleDocument } from "./role.model";
 
 export interface UserInput {
     email : string
@@ -12,8 +14,8 @@ export interface UserInput {
 }
 
 export interface UserDocument extends UserInput, mongoose.Document {
-    roles : UserDocument['_id'],
-    permits : UserDocument['_id'],
+    roles : roleDocument['_id'],
+    permits : permitDocument['_id'],
     createdAt: Date;
     updatedAt: Date;
 }

@@ -19,6 +19,5 @@ export const roleSchema = object({
         name : string({
             required_error : "name is required"
         }),
-        // permits : string().regex(/^[0-9a-fA-F]{24}$/ , "invlid id")
     })
 })
