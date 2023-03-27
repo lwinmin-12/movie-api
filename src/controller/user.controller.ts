@@ -1,10 +1,8 @@
 import {Request , Response , NextFunction} from 'express'
 import { getPermit } from '../service/permit.service'
 import { getRole } from '../service/role.service'
-// import UserModel from '../model/user.model'
-// import roleModel, { roleDocument } from '../model/role.model'
-// import PermitModel from '../model/permit.model'
-import {registerUser , getUser , loginUser, updateUser, deleteUser, userAddRole, userRemoveRole, userAddPermit, userRemovePermit} from '../service/user.service'
+import {registerUser , getUser , loginUser, updateUser, deleteUser, userAddRole, userRemoveRole, userAddPermit, userRemovePermit, userAddWatchLater, userRemoveWatchLater, userRemoveHistory} from '../service/user.service'
+import { getVideo } from '../service/video.service'
 import fMsg from '../utils/helper'
 
 
@@ -119,7 +117,7 @@ export const userRemoveRoleHandler = async (req : Request , res : Response , nex
     
 
     if(!user[0] || !permit[0]) {
-      return next( new Error("there is no role or user"))
+      return next( new Error("there is no permit or user"))
     }
     let foundRole = user[0].permits.find( (ea?) => ea._id == req.body.permitId)
     if(foundRole){
@@ -130,7 +128,7 @@ export const userRemoveRoleHandler = async (req : Request , res : Response , nex
 
     let result = await userAddPermit(user[0]._id , permit[0]._id)
     // let result = await userModel.findById(user._id)
-    fMsg(res , 'role added' , result)
+    fMsg(res , 'permit added' , result)
 
     }catch(e:any){
       next(new Error(e.errors))
@@ -152,8 +150,67 @@ export const userRemovePermitHandler = async (req : Request , res : Response , n
     try{
       
       let result =await userRemovePermit(user[0]._id , req.body.permitId)
-      fMsg(res , 'role removed' , result)
+      fMsg(res , 'permit removed' , result)
     }catch(e:any){
       next(new Error(e.errors))
     }
   }
+
+export const userAddWatchLaterHandler = async (req : Request , res : Response , next : NextFunction) =>{
+    let user = await getUser({_id : req.body.user[0]._id})
+    let video = await getVideo({_id : req.body.videoId})
+    
+    if(!user[0] || !video[0]) {
+      return next( new Error("there is no video or user"))
+    }
+    let foundRole = user[0].watchLater.find( (ea : any) => ea._id == req.body.videoId)
+    if(foundRole){
+      return next( new Error("watch later already in exist"))
+    }
+    try{
+
+    let result = await userAddWatchLater(user[0]._id , video[0]._id)
+    fMsg(res , 'watch later added' , result)
+
+    }catch(e:any){
+      next(new Error(e.errors))
+    }
+}
+
+export const userRemoveWatchLaterHandler = async (req : Request , res : Response , next : NextFunction) =>{
+  let user = await getUser({_id : req.body.user[0]._id})
+  // let role = await getRole({_id : req.body.roleId})
+
+  if(!user[0] ) {
+    return next( new Error("there is no user"))
+  }
+
+  let foundRole = user[0].watchLater.find( (ea : any) => ea._id == req.body.videoId)
+  if(!foundRole) {
+   return next(new Error("watch later not exist"))
+  }
+  try{
+    let result =await userRemoveWatchLater(user[0]._id , req.body.videoId)
+    fMsg(res , 'watch later removed' , result)
+  }catch(e:any){
+    next(new Error(e.errors))
+  }
+}
+
+export const userRemoveHistoryHandler = async (req : Request , res : Response , next : NextFunction) =>{
+  let user = await getUser({_id : req.body.user[0]._id})
+  if(!user[0] ) {
+    return next( new Error("there is no user"))
+  }
+
+  let foundRole = user[0].history.find( (ea : any) => ea._id == req.body.videoId)
+  if(!foundRole) {
+   return next(new Error("history not exist"))
+  }
+  try{
+    let result =await userRemoveHistory(user[0]._id , req.body.videoId)
+    fMsg(res , 'history removed' , result)
+  }catch(e:any){
+    next(new Error(e.errors))
+  }
+}

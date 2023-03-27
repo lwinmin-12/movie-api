@@ -1,10 +1,14 @@
 import { FilterQuery, UpdateQuery } from "mongoose";
 import { permitDocument } from "../model/permit.model";
 import UserModel, { UserDocument, UserInput } from "../model/user.model";
+import { videoDocument } from "../model/video.model";
 import { compass , createToken } from "../utils/helper";
 export const registerUser = async (payload : UserInput) => {
-    try {
-      return await UserModel.create(payload)
+   try {
+      let result = await UserModel.create(payload)
+      let userObj : Partial<UserDocument> = result.toObject()
+      delete userObj.password
+      return userObj
     }catch(e){
        throw new Error(e);
     }
@@ -34,7 +38,7 @@ export const loginUser = async ({email , password} : {email : string , password 
 
 export const getUser = async (query :  FilterQuery<UserDocument>) =>{
     try{
-     return await UserModel.find(query).lean().populate({path : "roles permits"}).select("-password -__v")
+     return await UserModel.find(query).lean().populate({path : "roles permits watchLater"}).select("-password -__v")
     }catch(e){
      throw new Error(e);
     }
@@ -89,6 +93,42 @@ export const userAddPermit = async (userId : UserDocument['_id'] , permitId : pe
 export const userRemovePermit = async (userId : UserDocument['_id'] , permitId : permitDocument['_id']) => {
    try {
     await UserModel.findByIdAndUpdate( userId ,{$pull : {permits : permitId}} )
+    return await UserModel.findById(userId)
+   }catch (e : any){
+    throw new Error(e)
+   }
+}
+
+export const userAddHistory = async (userId : UserDocument['_id'] , video : videoDocument['_id']) => {
+   try {
+    await UserModel.findByIdAndUpdate( userId ,{$push : {history : video}} )
+    return await UserModel.findById(userId)
+   }catch (e : any){
+    throw new Error(e)
+   }
+}
+
+export const userRemoveHistory = async (userId : UserDocument['_id'] , video : videoDocument['_id']) => {
+   try {
+    await UserModel.findByIdAndUpdate( userId ,{$pull : {history : video}} )
+    return await UserModel.findById(userId)
+   }catch (e : any){
+    throw new Error(e)
+   }
+}
+
+export const userAddWatchLater = async (userId : UserDocument['_id'] , video : videoDocument['_id']) => {
+   try {
+    await UserModel.findByIdAndUpdate( userId ,{$push : {watchLater : video}} )
+    return await UserModel.findById(userId)
+   }catch (e : any){
+    throw new Error(e)
+   }
+}
+
+export const userRemoveWatchLater = async (userId : UserDocument['_id'] , video : videoDocument['_id']) => {
+   try {
+    await UserModel.findByIdAndUpdate( userId ,{$pull : {watchLater : video}} )
     return await UserModel.findById(userId)
    }catch (e : any){
     throw new Error(e)
